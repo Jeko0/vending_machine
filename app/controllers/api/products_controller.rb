@@ -2,14 +2,18 @@ module Api
   class ProductsController < ApplicationController
     include UserAuthentification
 
-    before_action :set_product, only: [:update, :destroy]
+    before_action :set_product, only: [:show, :update, :destroy]
     before_action :find_user, only: [:create, :update, :destroy]
     before_action :identify_user, only: [:create, :update, :destroy]
     before_action :check_seller, only: [:update, :destory]
     
     def index 
-      @products = Product.all 
+      @products = Product.includes(:seller).all 
       render json: @products
+    end
+
+    def show 
+      render json: @product 
     end
     
     def create 
@@ -43,7 +47,8 @@ module Api
     end
 
     def set_product 
-      @product = Product.find_by(id: params[:id])
+      return if @product = Product.includes(:seller).find_by(id: params[:product_id])
+      render json: { error: "product not found" }
     end
 
     def identify_user
