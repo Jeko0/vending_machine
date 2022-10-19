@@ -30,8 +30,10 @@ module Api
       end
 
       def destroy
-        if @user&.valid_password?(user_params[:password]) && @user&.destroy
+        if  @user&.destroy
           render json: { message: 'account deleted' }, status: :ok
+        else
+          render json: { message: "failed", errors: @user ? @user.errors : "couldn't find user"}
         end
       end
 
@@ -68,7 +70,7 @@ module Api
       end
 
       def register_failed
-        render json: { message: 'Something went wrong' }, status: :unprocessable_entity
+        render json: { message: 'Something went wrong', errors: @user.errors }, status: :unprocessable_entity
       end
     end
   end
