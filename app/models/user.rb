@@ -1,6 +1,4 @@
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
@@ -8,6 +6,8 @@ class User < ApplicationRecord
 
   enum role: %i[ buyer seller ]
   after_create :set_user_role 
+
+  has_many :products, foreign_key: "seller_id", dependent: :destroy
 
   def set_user_role
     self.role ||= :buyer
