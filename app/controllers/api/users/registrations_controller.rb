@@ -3,10 +3,13 @@
 module Api
   module Users
     class RegistrationsController < ApplicationController
-      before_action :set_user, only: %i[update destroy]
+      include AccessToken
+      include UserAuthentification
 
+      before_action :find_user, only: %i[update destroy]
       rescue_from ActiveRecord::RecordNotFound, with: :not_found
-      rescue_from ActiveRecord::RecordNotUnique, with: :try_again
+
+      rescue_from JWT::DecodeError, with: :invalid_token
 
       def create
         @user = User.new(user_params)
@@ -19,26 +22,23 @@ module Api
       end
 
       def update
-        if @user.update(user_params)
-          respond_with(@user)
+        if @user&.valid_password?(user_params[:password]) && @user&.update(user_params)
+          render json: { message: 'updated', user: @user }
         else
           render json: @user.errors, status: :unprocessable_entity
         end
       end
 
       def destroy
-        @user.destroy
-        render json: { message: 'account deleted' }, status: :ok
+        if @user&.valid_password?(user_params[:password]) && @user&.destroy
+          render json: { message: 'account deleted' }, status: :ok
+        end
       end
 
       private
 
       def user_params
         params.require(:user).permit(:user_name, :email, :password, :password_confirmation, :role)
-      end
-
-      def set_user
-        @user = User.find(params[:id])
       end
 
       def not_found
@@ -49,6 +49,10 @@ module Api
         render json: { error: 'name is taken, please try different name' }, status: :not_found
       end
 
+      def invalid_token
+        render json: { message: 'invalid token' }, status: :unauthorized
+      end
+
       def respond_with(resource, _options = {})
         register_success && return if resource.persisted?
 
@@ -57,8 +61,9 @@ module Api
 
       def register_success
         render json: {
-          message: 'Sign up Successfully',
-          user: @user
+          message: 'Signed up Successfully',
+          user: @user,
+          accesstoken: AccessToken.encode(user_id: @user.id)
         }, status: :ok
       end
 
