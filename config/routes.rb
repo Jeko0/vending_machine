@@ -2,9 +2,15 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :users do
-      resources :sessions, only: :create
-      resources :registrations, only: %i[create update destroy]
+      post '/', to: "registrations#create"
+      patch '/', to: "registrations#update"
+      delete '/', to: "registrations#destroy"
+      post '/login', to: "sessions#create"
     end
-    resources :products, only: [:index, :create, :update, :destroy]
+    get '/products', to: "products#index"
+    get '/products/:product_id', to: "products#show"
+    post '/products', to: "products#create"
+    patch '/products/:product_id', to: "products#update"
+    delete '/products/:product_id', to: "products#destroy"
   end
 end
