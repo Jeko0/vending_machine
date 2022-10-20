@@ -7,19 +7,19 @@ RSpec.describe "Api::ProductsController", type: :request do
   let(:seller_token) { AccessToken.encode(user_id: seller_user.id) }
   
 
-  let(:valid_headers) do 
+  let(:seller_headers) do 
     {"ACCEPT" => "application/json", 
     'Authorization' => seller_token}
   end
 
-  let(:invalid_headers) do 
+  let(:buyer_headers) do 
     {"ACCEPT" => "application/json", 
     'Authorization' => buyer_token}
   end
 
   context "GET index" do
     it "shows all available products" do 
-      get api_products_path, headers: headers  
+      get api_products_path, headers: seller_headers  
       expect(response).to be_successful
     end
   end
@@ -27,7 +27,7 @@ RSpec.describe "Api::ProductsController", type: :request do
   context "GET show" do
     it "shows specific product" do 
       product = create(:product)
-      get api_path(product), headers: valid_headers
+      get api_path(product), headers: seller_headers
       expect(response).to  have_http_status(:success)
     end
   end
@@ -40,12 +40,12 @@ RSpec.describe "Api::ProductsController", type: :request do
 
     it "creates product" do 
       product = attributes_for(:product)
-      post api_products_path, params: { product: product }, headers: valid_headers
+      post api_products_path, params: { product: product }, headers: seller_headers
       expect(response).to have_http_status(:success)
     end
 
     it "does not create product" do 
-      post api_products_path, headers: invalid_headers
+      post api_products_path, headers: buyer_headers
       expect(response).to have_http_status(:unauthorized)
     end
   end
@@ -54,7 +54,7 @@ RSpec.describe "Api::ProductsController", type: :request do
     let(:product) { create(:product) }
     let(:product_id) { product.id }
     let(:root) { "/api/products/" + product_id.to_s }
-    before { patch root, params: { product: { product_name: "new product"} },  headers: valid_headers
+    before { patch root, params: { product: { product_name: "new product"} },  headers: seller_headers
       product.reload
     }
 
@@ -69,7 +69,7 @@ RSpec.describe "Api::ProductsController", type: :request do
     let(:product) { create(:product) }
     let(:product_id) { product.id }
     let(:root) { "/api/products/" + product_id.to_s }
-    before { delete root, params: { product: { product_name: "new product"} },  headers: valid_headers
+    before { delete root, params: { product: { product_name: "new product"} },  headers: seller_headers
     product.destroy
     }
 
