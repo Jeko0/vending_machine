@@ -5,7 +5,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   validates :user_name, presence: true, uniqueness: true
-  validates :deposit, presence: true, 
+  validates :deposit, presence: true
 
   enum role: %i[ buyer seller ]
   after_create :set_user_role 
