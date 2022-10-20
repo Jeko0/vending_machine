@@ -60,14 +60,14 @@ module Api
 
       if change_deposit(total_price, amount)
         render json: {
-          message: "buy #{amount} #{@product.product_name}",
+          message: "bought: ",
           product: @product,
           total: total_price,
           change: change
         }
       else
         render json: {
-          errors: ['not enough money in wallet'],
+          errors: 'not enough money in wallet',
           total_price: total_price,
           deposit: @user.deposit
         }, status: :unprocessable_entity
@@ -85,12 +85,12 @@ module Api
     end
 
     def set_product
-      @product = Product.find_by(id: params[:product_id].to_i)
+      @product = Product.find_by(id: params[:product_id])
 
       return if @product
 
       render json: {
-        errors: ['Product not found']
+        errors: 'Product not found'
       }, status: 404
     end
 
@@ -98,7 +98,7 @@ module Api
       return if @user.buyer?
 
       render json: {
-        errors: ['you are not qualified for this action']
+        errors: 'you are not qualified for this action'
       }, status: :unauthorized
     end
 
@@ -106,7 +106,7 @@ module Api
       return if @user
 
       render json: {
-        errors: ['you must be logged in']
+        errors: 'you must be logged in'
       }, status: :unauthorized
     end
 
