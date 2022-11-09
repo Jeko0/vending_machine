@@ -1,5 +1,5 @@
-module UserAuthentification
-  def find_user
+module UserAuthentication
+  def set_user
     header = JSON.parse(request.headers['Authorization'].to_json)
     return nil if header.nil?
 
