@@ -3,6 +3,8 @@
 module Api
   module Users
     class SessionsController < ApplicationController
+      include AccessToken 
+
       def create
         @user = User.find_by(user_name: user_params[:user_name])
 
@@ -22,7 +24,8 @@ module Api
       def respond_with(_resource, _options = {})
         render json: {
           message: 'logged in Successfully',
-          user: @user
+          user: @user,
+          accessToken: AccessToken.encode(user_id: @user.id)
         }, status: :ok
       end
     end
