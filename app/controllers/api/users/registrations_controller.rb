@@ -39,7 +39,7 @@ module Api
       private
 
       def user_params
-        params.require(:user).permit(:user_name, :email, :password, :password_confirmation, :current_password, :role)
+        params.require(:user).permit(:user_name, :email, :password, :password_confirmation, :role)
       end
 
       def invalid_token
